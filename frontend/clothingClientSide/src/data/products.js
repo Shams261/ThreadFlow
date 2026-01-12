@@ -1,6 +1,3 @@
-// src/data/products.data.js
-// Mock products (Mongo-style) — backend-ready shape
-
 export const products = [
   {
     _id: "p1",
