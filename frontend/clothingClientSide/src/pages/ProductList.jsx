@@ -4,13 +4,19 @@ import ProductCard from "../components/product/ProductCard";
 import { products as allProducts } from "../data/products";
 
 export default function ProductList() {
-  const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams(); // useSearchParams() reads query string : Why = 	shareable links and refresh safe hota hai
   const search = (searchParams.get("search") || "").trim().toLowerCase();
+
+  // useMemo() for derived data : Memoize filtered products to avoid unnecessary recalculations . It caches the filtered result. Recomputes only when search changes.
+  // Baar baar krne ki zaroorat nahi hai agar search change nahi hua.
+  // This improves performance, especially with large product lists. filtered list is derived, not stored in state.
 
   const filtered = useMemo(() => {
     if (!search) return allProducts;
 
     return allProducts.filter((p) => {
+      // Search in title, brand, description haystack approach isliye kyunki ye teeno fields me kuch bhi ho sakta hai jo user search kar raha hai.
+      // baad mein replace kr denge filter pipeline se.
       const hay = `${p.title} ${p.brand} ${p.description || ""}`.toLowerCase();
       return hay.includes(search);
     });

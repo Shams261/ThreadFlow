@@ -17,6 +17,8 @@ export default function ProductCard({ product }) {
   } = product;
 
   const img = images?.[0];
+  //    means: if images undefined/null, app crash na kare.
+  // If no image, we show “No image” placeholder. Why? Real data can be incomplete, UI must not die.
 
   return (
     <div className="col">
@@ -76,8 +78,10 @@ export default function ProductCard({ product }) {
               type="button"
               disabled={!inStock}
               onClick={(e) => {
-                e.stopPropagation(); // card click prevent
-                // later: add to cart
+                e.stopPropagation(); // card click prevent kya kar rha hai  : e.stopPropagation() on buttons Buttons are inside a
+                // clickable card. Without stopPropagation: you click “Add to Cart” card’s onClick triggers too
+                // it navigates to detail page accidentally Prevent parent click event from firing.
+                // TODO1: add to cart
               }}
             >
               Add to Cart
@@ -87,7 +91,7 @@ export default function ProductCard({ product }) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                // later: add to wishlist
+                // TODO2: add to wishlist
               }}
             >
               Wishlist

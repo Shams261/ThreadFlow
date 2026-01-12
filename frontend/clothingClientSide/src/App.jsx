@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import AppLayout from "./components/layout/AppLayout";
 
-// import Home from "./pages/Home";
+import Home from "./pages/Home";
 import ProductList from "./pages/ProductList";
 // import ProductDetail from "./pages/ProductDetail";
 // import Wishlist from "./pages/Wishlist";
@@ -14,7 +14,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<AppLayout />}>
-        {/* <Route index element={<Home />} /> */}
+        <Route index element={<Home />} />
         <Route path="products" element={<ProductList />} />
         {/* <Route path="products/:id" element={<ProductDetail />} />
         <Route path="wishlist" element={<Wishlist />} />
