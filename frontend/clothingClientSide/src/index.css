@@ -1,17 +1,8 @@
-/* 
-  Custom styles for your clothing website
-  Bootstrap is already imported in main.jsx, so keep this minimal.
-  Add your custom overrides and utility classes here.
-*/
-
-/* Optional: Add any custom CSS variables */
+/* Root CSS Variables */
 :root {
-  --primary-brand: #0d6efd; /* Bootstrap primary blue, change as needed */
+  --primary-brand: #0d6efd;
 }
 
-/* Optional: Custom utility classes */
 .cursor-pointer {
   cursor: pointer;
 }
-
-/* Add your custom styles below */
