@@ -26,33 +26,39 @@ export default function ProductList() {
   });
 
   function toggleCategory(catId) {
-    // to toggle category selection
+    // to toggle category selection in filters state
     setFilters((prev) => {
-      const nextSet = new Set(prev.categoryIds);
+      const nextSet = new Set(prev.categoryIds); // create a new Set kyun ki set is mutable object if we edit react state may not detect changes.
       if (nextSet.has(catId)) nextSet.delete(catId);
-      else nextSet.add(catId);
-      return { ...prev, categoryIds: nextSet };
+      //agar present hai to hata do (untick) wrna add kar do (tick)
+      else nextSet.add(catId); // not present
+      return { ...prev, categoryIds: nextSet }; // return new state object with updated categoryIds Set
     });
   }
 
   function changeRating(value) {
-    setFilters((prev) => ({ ...prev, minRating: value }));
+    // to change minRating in filters state
+    setFilters((prev) => ({ ...prev, minRating: value })); // return new state object with updated minRating
   }
 
   function changeSort(value) {
-    setFilters((prev) => ({ ...prev, sort: value }));
+    // to change sort order in filters state
+    setFilters((prev) => ({ ...prev, sort: value })); // return new state object with updated sort
   }
 
   function clearFilters() {
-    setFilters({ categoryIds: new Set(), minRating: 0, sort: null });
+    // to reset all filters to initial state
+    setFilters({ categoryIds: new Set(), minRating: 0, sort: null }); // reset to initial state
   }
 
   const filtered = useMemo(() => {
-    let result = allProducts;
+    // compute filtered products based on search and filters
+    let result = allProducts; // start with all products
 
     // 1) Search
     if (search) {
       result = result.filter((p) => {
+        // filter products based on search query
         const hay = `${p.title} ${p.brand} ${
           p.description || ""
         }`.toLowerCase();
@@ -70,14 +76,16 @@ export default function ProductList() {
       result = result.filter((p) => (p.rating || 0) >= filters.minRating);
     }
 
-    // 4) Sort
+    // 4) Sort by Price
     if (filters.sort === "LOW_TO_HIGH") {
-      result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0));
+      // sort in ascending order
+      result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0)); // create new array before sort to avoid mutating original
     } else if (filters.sort === "HIGH_TO_LOW") {
-      result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0));
+      // sort in descending order
+      result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0)); // create new array before sort to avoid mutating original
     }
 
-    return result;
+    return result; // return the final filtered array
   }, [search, filters]);
 
   return (
