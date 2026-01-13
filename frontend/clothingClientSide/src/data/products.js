@@ -12,7 +12,6 @@ export const products = [
     categoryId: "cat-men",
     images: [
       "https://plus.unsplash.com/premium_photo-1673125510222-1a51e3a8ccb0?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      "https://picsum.photos/seed/hoodie-oversized/800/800",
     ],
     sizes: ["S", "M", "L", "XL"],
     inStock: true,
