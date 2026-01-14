@@ -1,19 +1,17 @@
-import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useStore } from "../../store/storeProvider";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
+  const { cartCount, wishlistCount } = useStore(); // get counts from global store taaki re-render ho on changes
+
   function handleSubmit(event) {
     event.preventDefault();
-
     const trimmed = q.trim();
-    if (!trimmed) {
-      navigate("/products");
-      return;
-    }
-
+    if (!trimmed) return navigate("/products");
     navigate(`/products?search=${encodeURIComponent(trimmed)}`);
   }
 
@@ -21,7 +19,7 @@ export default function Navbar() {
     <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
       <div className="container">
         <Link to="/" className="navbar-brand fw-bold">
-          ThreadFlow
+          StyloAI
         </Link>
 
         <button
@@ -39,42 +37,22 @@ export default function Navbar() {
         <div className="collapse navbar-collapse" id="mainNavbar">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <NavLink
-                to="/products"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? " active fw-semibold" : ""}`
-                }
-              >
+              <NavLink to="/products" className="nav-link">
                 Products
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink
-                to="/wishlist"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? " active fw-semibold" : ""}`
-                }
-              >
-                Wishlist (0)
+              <NavLink to="/wishlist" className="nav-link">
+                Wishlist ({wishlistCount})
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink
-                to="/cart"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? " active fw-semibold" : ""}`
-                }
-              >
-                Cart (0)
+              <NavLink to="/cart" className="nav-link">
+                Cart ({cartCount})
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink
-                to="/profile"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? " active fw-semibold" : ""}`
-                }
-              >
+              <NavLink to="/profile" className="nav-link">
                 Profile
               </NavLink>
             </li>
