@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useStore } from "../../store/storeProvider"; // import global store
+import { ACTIONS } from "../../store/store"; // import action types
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
+  const { dispatch, state } = useStore(); // get dispatch and state from global store means re-render on state changes
+  // matlab jab wishlist or cart change hoga toh yeh component bhi re-render hoga
 
   const {
     _id,
@@ -17,8 +21,7 @@ export default function ProductCard({ product }) {
   } = product;
 
   const img = images?.[0];
-  //    means: if images undefined/null, app crash na kare.
-  // If no image, we show “No image” placeholder. Why? Real data can be incomplete, UI must not die.
+  const wished = state.wishlist.ids.includes(_id); // check if product is in wishlist
 
   return (
     <div className="col">
@@ -78,23 +81,22 @@ export default function ProductCard({ product }) {
               type="button"
               disabled={!inStock}
               onClick={(e) => {
-                e.stopPropagation(); // card click prevent kya kar rha hai  : e.stopPropagation() on buttons Buttons are inside a
-                // clickable card. Without stopPropagation: you click “Add to Cart” card’s onClick triggers too
-                // it navigates to detail page accidentally Prevent parent click event from firing.
-                // TODO1: add to cart
+                e.stopPropagation();
+                dispatch({ type: ACTIONS.CART_ADD, payload: _id }); // add to cart action
               }}
             >
               Add to Cart
             </button>
+
             <button
               className="btn btn-outline-dark"
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                // TODO2: add to wishlist
+                dispatch({ type: ACTIONS.WISHLIST_TOGGLE, payload: _id }); // toggle wishlist action
               }}
             >
-              Wishlist
+              {wished ? "Wishlisted" : "Wishlist"}
             </button>
           </div>
         </div>
