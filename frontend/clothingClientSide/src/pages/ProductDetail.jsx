@@ -1,8 +1,11 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { products as allProducts } from "../data/products";
+import { useStore } from "../store/storeProvider"; // import global store
+import { ACTIONS } from "../store/store"; // import action types
 
 export default function ProductDetail() {
+  const { dispatch, state } = useStore(); // get dispatch and state from global store means re-render on state changes
   const { id } = useParams(); // get product ID from URL params
   const navigate = useNavigate(); // for navigation (e.g., go back)
 
@@ -11,6 +14,10 @@ export default function ProductDetail() {
   const product = useMemo(() => {
     return allProducts.find((p) => p._id === id) || null;
   }, [id]);
+
+  const wished = product ? state.wishlist.ids.includes(product._id) : false; // check if product is in wishlist
+
+  // If product not found, show message and back button
 
   if (!product) {
     return (
@@ -138,26 +145,27 @@ export default function ProductDetail() {
             </div>
           ) : null}
           {/* Actions buttons when in stock */}
-          <div className="d-grid gap-2 d-sm-flex mt-4">
+          <div className="d-flex gap-2 flex-wrap">
             <button
               className="btn btn-dark"
               disabled={!inStock}
-              onClick={() => {
-                // next step: dispatch add-to-cart
-                alert("Added to cart (will wire real cart next)");
-              }}
+              onClick={() =>
+                dispatch({ type: ACTIONS.CART_ADD, payload: product._id })
+              }
             >
               Add to Cart
             </button>
 
             <button
               className="btn btn-outline-dark"
-              onClick={() => {
-                // next step: dispatch wishlist toggle
-                alert("Added to wishlist (will wire real wishlist next)");
-              }}
+              onClick={() =>
+                dispatch({
+                  type: ACTIONS.WISHLIST_TOGGLE,
+                  payload: product._id,
+                })
+              }
             >
-              Wishlist
+              {wished ? "Remove from Wishlist" : "Wishlist"}
             </button>
           </div>
         </div>
