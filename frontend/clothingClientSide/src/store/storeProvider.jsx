@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from "react";
 import {
   // import store utilities
@@ -34,16 +35,23 @@ function loadFromStorage() {
 }
 
 export function StoreProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  // Hydrate from storage on mount means only once when component mounts
-  useEffect(() => {
+  // Load saved state BEFORE first render (lazy initializer)
+  const [state, dispatch] = useReducer(reducer, initialState, (initial) => {
     const saved = loadFromStorage();
-    if (saved) dispatch({ type: ACTIONS.HYDRATE, payload: saved });
+    return saved ?? initial;
+  });
+
+  // Track if we've hydrated to avoid overwriting on first render
+  const isHydrated = useRef(false);
+
+  // Mark as hydrated after first render
+  useEffect(() => {
+    isHydrated.current = true;
   }, []);
 
-  // Persist on any state change
+  // Persist on any state change (but skip the initial render)
   useEffect(() => {
+    if (!isHydrated.current) return; // Don't persist on first render
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
