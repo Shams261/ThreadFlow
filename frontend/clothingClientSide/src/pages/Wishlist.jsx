@@ -4,14 +4,17 @@ import { ACTIONS } from "../store/store";
 import { products as allProducts } from "../data/products";
 
 function findProduct(productId) {
+  // this function helps to find product by ID
   return allProducts.find((p) => p._id === productId) || null;
 }
 
 export default function Wishlist() {
-  const { state, dispatch } = useStore();
+  // Wishlist page component
+  const { state, dispatch } = useStore(); // get global state and dispatch from store provider dispatch is used to send actions to update the state
 
-  const wishlistProducts = state.wishlist.ids.map(findProduct).filter(Boolean);
-
+  const wishlistProducts = state.wishlist.ids.map(findProduct).filter(Boolean); // get products in wishlist by mapping IDs to product objects
+  // filter(Boolean) removes any nulls in case a product ID is not found agar ksii product ID ka data nhi mila to null aa jata hai
+  // use filter krke hata dete hain
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -23,9 +26,11 @@ export default function Wishlist() {
 
       {wishlistProducts.length === 0 ? (
         <div className="alert alert-info">
-          Your wishlist is empty.{" "}
+          {" "}
+          {/* if no items in wishlist */}
+          Your wishlist is empty. {/* show message */}
           <Link to="/products" className="alert-link">
-            Browse products
+            Browse products {/* link to products page */}
           </Link>
           .
         </div>
@@ -87,8 +92,8 @@ export default function Wishlist() {
                       disabled={!p.inStock}
                       onClick={() =>
                         dispatch({
-                          type: ACTIONS.MOVE_WISHLIST_TO_CART,
-                          payload: p._id,
+                          type: ACTIONS.MOVE_WISHLIST_TO_CART, // action to move item from wishlist to cart
+                          payload: p._id, // product ID as payload
                         })
                       }
                     >
@@ -99,8 +104,8 @@ export default function Wishlist() {
                       className="btn btn-outline-dark"
                       onClick={() =>
                         dispatch({
-                          type: ACTIONS.WISHLIST_TOGGLE,
-                          payload: p._id,
+                          type: ACTIONS.WISHLIST_TOGGLE, // action to toggle wishlist item
+                          payload: p._id, // product ID as payload
                         })
                       }
                     >
