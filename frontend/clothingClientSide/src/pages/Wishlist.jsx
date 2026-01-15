@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { useStore } from "../store/storeProvider";
-import { ACTIONS } from "../store/store";
-import { products as allProducts } from "../data/products";
+import { useStore } from "../store/storeProvider"; // import global store
+import { ACTIONS } from "../store/store"; // import action types
+import { products as allProducts } from "../data/products"; // import all products data
 
 function findProduct(productId) {
   // this function helps to find product by ID
