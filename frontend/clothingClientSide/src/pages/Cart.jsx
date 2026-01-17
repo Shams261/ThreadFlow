@@ -1,43 +1,47 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
-import { useStore } from "../store/storeProvider";
-import { ACTIONS } from "../store/store";
-import { products as allProducts } from "../data/products";
+import { useStore } from "../store/storeProvider"; // import global store
+import { ACTIONS } from "../store/store"; // import action types
+import { products as allProducts } from "../data/products"; // import all products data
 
 function findProduct(productId) {
-  return allProducts.find((p) => p._id === productId) || null;
+  // this function helps to find product by ID
+  return allProducts.find((p) => p._id === productId) || null; // return product or null if not found
 }
 
 export default function Cart() {
-  const navigate = useNavigate();
-  const { state, dispatch } = useStore();
+  // Cart page component
+  const navigate = useNavigate(); // for navigation
+  const { state, dispatch } = useStore(); // get global state and dispatch from store provider
 
-  const cartEntries = Object.entries(state.cart.items); // [ [productId, qty], ... ]
+  const cartEntries = Object.entries(state.cart.items); // get cart items as [productId, qty] pairs because cart items are stored as an object
 
-  const cartItems = cartEntries
+  const cartItems = cartEntries // map over cart entries to get full product details
     .map(([productId, qty]) => {
-      const product = findProduct(productId);
+      // for each [productId, qty] pair
+      const product = findProduct(productId); // find the product by ID
       if (!product) return null;
       return { product, qty };
     })
     .filter(Boolean);
 
   const summary = useMemo(() => {
+    // calculate price summary using useMemo for optimization
     const subtotal = cartItems.reduce(
       (sum, { product, qty }) => sum + (product.price || 0) * qty,
       0
     );
 
-    // Simple placeholder: later we’ll add delivery/tax/coupons
-    const shipping = subtotal > 0 ? 0 : 0;
+    // Shipping is free for this example
+    const shipping = subtotal > 0 ? 0 : 0; // will modify later if needed
     const total = subtotal + shipping;
 
-    return { subtotal, shipping, total };
+    return { subtotal, shipping, total }; // return summary object
   }, [cartItems]);
 
   return (
     <div className="row g-3">
-      {/* Left: Cart items */}
+      {/* Cart items in the left column */}
       <div className="col-12 col-lg-8">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h2 className="mb-0">Cart</h2>
@@ -116,6 +120,7 @@ export default function Cart() {
                           type="button"
                           onClick={() =>
                             dispatch({
+                              // decrease quantity action
                               type: ACTIONS.CART_DEC,
                               payload: product._id,
                             })
@@ -130,6 +135,7 @@ export default function Cart() {
                           disabled={!product.inStock}
                           onClick={() =>
                             dispatch({
+                              // increase quantity action
                               type: ACTIONS.CART_INC,
                               payload: product._id,
                             })
@@ -143,7 +149,7 @@ export default function Cart() {
                           type="button"
                           onClick={() =>
                             dispatch({
-                              type: ACTIONS.CART_REMOVE,
+                              type: ACTIONS.CART_REMOVE, // action to remove item from cart
                               payload: product._id,
                             })
                           }
@@ -158,7 +164,7 @@ export default function Cart() {
                           type="button"
                           onClick={() =>
                             dispatch({
-                              type: ACTIONS.MOVE_CART_TO_WISHLIST,
+                              type: ACTIONS.MOVE_CART_TO_WISHLIST, // action to move item from cart to wishlist
                               payload: product._id,
                             })
                           }
