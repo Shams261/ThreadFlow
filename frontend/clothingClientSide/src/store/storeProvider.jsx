@@ -28,7 +28,17 @@ function loadFromStorage() {
 
     // basic validation of structure
     if (!parsed?.cart?.items || !parsed?.wishlist?.ids) return null; // invalid structure means null
-    return parsed; // valid parsed state
+
+    // Merge with initialState to ensure all required properties exist
+    // This handles cases where new properties were added to initialState
+    return {
+      ...initialState,
+      ...parsed,
+      cart: { ...initialState.cart, ...parsed.cart },
+      wishlist: { ...initialState.wishlist, ...parsed.wishlist },
+      addresses: { ...initialState.addresses, ...parsed.addresses },
+      orders: { ...initialState.orders, ...parsed.orders },
+    };
   } catch {
     return null;
   }
