@@ -1,13 +1,16 @@
 export const STORAGE_KEY = "styloai_store_v1";
 
 export const initialState = {
-  cart: {
-    // items: { [productId]: quantity }
-    items: {},
+  cart: { items: {} },
+  wishlist: { ids: [] },
+
+  addresses: {
+    list: [], // array of address objects
+    selectedId: null, // which address is selected for checkout
   },
-  wishlist: {
-    // ids: ["p1", "p2"]
-    ids: [],
+
+  orders: {
+    list: [], // array of orders
   },
 };
 
@@ -24,6 +27,12 @@ export const ACTIONS = {
 
   MOVE_WISHLIST_TO_CART: "MOVE_WISHLIST_TO_CART",
   MOVE_CART_TO_WISHLIST: "MOVE_CART_TO_WISHLIST",
+  ADDRESS_ADD: "ADDRESS_ADD",
+  ADDRESS_UPDATE: "ADDRESS_UPDATE",
+  ADDRESS_DELETE: "ADDRESS_DELETE",
+  ADDRESS_SELECT: "ADDRESS_SELECT",
+
+  ORDER_PLACE: "ORDER_PLACE",
 };
 
 function addToWishlistIds(ids, productId) {
@@ -158,6 +167,76 @@ export function reducer(state, action) {
       };
     }
 
+    // ----- ADDRESS -----
+    case ACTIONS.ADDRESS_ADD: {
+      const address = action.payload; // { name, phone, line1, city, state, pincode, country }
+      const newAddr = {
+        ...address,
+        _id: uid("addr"),
+        createdAt: new Date().toISOString(),
+      };
+
+      const nextList = [newAddr, ...state.addresses.list];
+      const nextSelected = state.addresses.selectedId ?? newAddr._id;
+
+      return {
+        ...state,
+        addresses: { list: nextList, selectedId: nextSelected },
+      };
+    }
+
+    case ACTIONS.ADDRESS_UPDATE: {
+      const { _id, updates } = action.payload;
+      const nextList = state.addresses.list.map((a) =>
+        a._id === _id ? { ...a, ...updates } : a
+      );
+      return { ...state, addresses: { ...state.addresses, list: nextList } };
+    }
+
+    case ACTIONS.ADDRESS_DELETE: {
+      const addrId = action.payload;
+      const nextList = state.addresses.list.filter((a) => a._id !== addrId);
+
+      // if deleted selected, pick first available or null
+      const nextSelected =
+        state.addresses.selectedId === addrId
+          ? (nextList[0]?._id ?? null)
+          : state.addresses.selectedId;
+
+      return {
+        ...state,
+        addresses: { list: nextList, selectedId: nextSelected },
+      };
+    }
+
+    case ACTIONS.ADDRESS_SELECT: {
+      const addrId = action.payload;
+      return {
+        ...state,
+        addresses: { ...state.addresses, selectedId: addrId },
+      };
+    }
+
+    // ----- ORDER -----
+    case ACTIONS.ORDER_PLACE: {
+      const { items, totals, address } = action.payload;
+
+      const order = {
+        _id: uid("order"),
+        createdAt: new Date().toISOString(),
+        items, // [{ productId, qty, priceAtPurchase }]
+        totals, // { subtotal, shipping, total }
+        address, // snapshot of selected address
+        status: "PLACED",
+      };
+
+      return {
+        ...state,
+        orders: { list: [order, ...state.orders.list] },
+        cart: { items: {} }, // clear cart after placing order
+      };
+    }
+
     default:
       return state;
   }
@@ -167,4 +246,7 @@ export function reducer(state, action) {
 export function getCartCount(cartItems) {
   // cartItems = { productId: quantity }
   return Object.values(cartItems).reduce((sum, qty) => sum + qty, 0); // sum of quantities
+}
+function uid(prefix = "id") {
+  return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
