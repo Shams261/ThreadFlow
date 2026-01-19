@@ -10,7 +10,7 @@ export const initialState = {
   },
 
   orders: {
-    list: [], // array of orders
+    list: [], // array of orders all placed so far
   },
 };
 
@@ -28,7 +28,7 @@ export const ACTIONS = {
   MOVE_WISHLIST_TO_CART: "MOVE_WISHLIST_TO_CART",
   MOVE_CART_TO_WISHLIST: "MOVE_CART_TO_WISHLIST",
   ADDRESS_ADD: "ADDRESS_ADD",
-  ADDRESS_UPDATE: "ADDRESS_UPDATE",
+  ADDRESS_UPDATE: "ADDRESS_UPDATE", //
   ADDRESS_DELETE: "ADDRESS_DELETE",
   ADDRESS_SELECT: "ADDRESS_SELECT",
 
@@ -138,7 +138,7 @@ export function reducer(state, action) {
       // remove from wishlist + add to cart
       const nextWishlistIds = removeFromWishlistIds(
         state.wishlist.ids,
-        productId
+        productId,
       );
       const prevQty = state.cart.items[productId] || 0;
 
@@ -188,7 +188,7 @@ export function reducer(state, action) {
     case ACTIONS.ADDRESS_UPDATE: {
       const { _id, updates } = action.payload;
       const nextList = state.addresses.list.map((a) =>
-        a._id === _id ? { ...a, ...updates } : a
+        a._id === _id ? { ...a, ...updates } : a,
       );
       return { ...state, addresses: { ...state.addresses, list: nextList } };
     }
