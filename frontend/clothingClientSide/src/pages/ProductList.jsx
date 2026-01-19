@@ -1,22 +1,20 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/product/ProductCard";
 import FilterSidebar from "../components/product/FilterSidebar";
-import { products as allProducts } from "../data/products";
-
-// Sample categories data (ye backend se aayega eventually)
-const categories = [
-  { _id: "cat-men", name: "Men" },
-  { _id: "cat-women", name: "Women" },
-  { _id: "cat-kids", name: "Kids" },
-  { _id: "cat-footwear", name: "Footwear" },
-  { _id: "cat-accessories", name: "Accessories" },
-];
+import { fetchProductsWithQuery } from "../api/products.api";
+import { fetchCategories } from "../api/categories.api";
+import Loader from "../components/common/Loader";
+import { useToast } from "../store/toastProvider";
 
 // ProductList component with filtering logic
 export default function ProductList() {
   const [searchParams] = useSearchParams(); // to read query params from URL like ?search=shirt
   const search = (searchParams.get("search") || "").trim().toLowerCase();
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const [filters, setFilters] = useState({
     // initial filter state
@@ -24,6 +22,66 @@ export default function ProductList() {
     minRating: 0,
     sort: null, // "LOW_TO_HIGH" | "HIGH_TO_LOW" | null
   });
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadCategories() {
+      try {
+        const c = await fetchCategories();
+        if (!alive) return;
+        setCategories(c);
+      } catch (err) {
+        showToast(err.message || "Failed to load categories", {
+          type: "danger",
+        });
+      }
+    }
+
+    loadCategories();
+    return () => {
+      alive = false;
+    };
+  }, [showToast]);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadProducts() {
+      try {
+        setLoading(true);
+
+        const params = {
+          search: search || undefined,
+          minRating:
+            filters.minRating > 0 ? String(filters.minRating) : undefined,
+          sort: filters.sort || undefined,
+          categoryIds:
+            filters.categoryIds.size > 0
+              ? Array.from(filters.categoryIds).join(",")
+              : undefined,
+        };
+
+        // remove undefined keys so URLSearchParams stays clean
+        Object.keys(params).forEach(
+          (k) => params[k] === undefined && delete params[k],
+        );
+
+        const p = await fetchProductsWithQuery(params);
+        if (!alive) return;
+        setProducts(p);
+      } catch (err) {
+        showToast(err.message || "Failed to load products", { type: "danger" });
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      alive = false;
+    };
+  }, [search, filters, showToast]);
 
   function toggleCategory(catId) {
     // to toggle category selection in filters state
@@ -51,43 +109,7 @@ export default function ProductList() {
     setFilters({ categoryIds: new Set(), minRating: 0, sort: null }); // reset to initial state
   }
 
-  const filtered = useMemo(() => {
-    // compute filtered products based on search and filters
-    let result = allProducts; // start with all products
-
-    // 1) Search
-    if (search) {
-      result = result.filter((p) => {
-        // filter products based on search query
-        const hay = `${p.title} ${p.brand} ${
-          p.description || ""
-        }`.toLowerCase();
-        return hay.includes(search);
-      });
-    }
-
-    // 2) Category
-    if (filters.categoryIds.size > 0) {
-      result = result.filter((p) => filters.categoryIds.has(p.categoryId));
-    }
-
-    // 3) Rating
-    if (filters.minRating > 0) {
-      result = result.filter((p) => (p.rating || 0) >= filters.minRating);
-    }
-
-    // 4) Sort by Price
-    if (filters.sort === "LOW_TO_HIGH") {
-      // sort in ascending order
-      result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0)); // create new array before sort to avoid mutating original
-    } else if (filters.sort === "HIGH_TO_LOW") {
-      // sort in descending order
-      result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0)); // create new array before sort to avoid mutating original
-    }
-
-    return result; // return the final filtered array
-  }, [search, filters]);
-
+  if (loading) return <Loader label="Loading products..." />;
   return (
     <div className="row g-3">
       {/* Sidebar */}
@@ -120,17 +142,17 @@ export default function ProductList() {
           </div>
 
           <span className="badge bg-light text-dark border">
-            {filtered.length} items
+            {products.length} items
           </span>
         </div>
 
-        {filtered.length === 0 ? (
+        {products.length === 0 ? (
           <div className="alert alert-warning">
             No products found. Try a different search.
           </div>
         ) : (
           <div className="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
-            {filtered.map((p) => (
+            {products.map((p) => (
               <ProductCard key={p._id} product={p} />
             ))}
           </div>

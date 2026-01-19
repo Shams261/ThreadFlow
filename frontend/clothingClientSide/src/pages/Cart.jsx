@@ -1,25 +1,75 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "../store/storeProvider"; // import global store
 import { ACTIONS } from "../store/store"; // import action types
-import { products as allProducts } from "../data/products"; // import all products data
-
-function findProduct(productId) {
-  // this function helps to find product by ID
-  return allProducts.find((p) => p._id === productId) || null; // return product or null if not found
-}
+import { useToast } from "../store/toastProvider"; // import useToast hook
+import { fetchProductById } from "../api/products.api"; // import API function
+import Loader from "../components/common/Loader";
 
 export default function Cart() {
   // Cart page component
   const navigate = useNavigate(); // for navigation
-  const { state, dispatch } = useStore(); // get global state and dispatch from store provider
+  const { state, dispatch } = useStore();
+  const { showToast } = useToast(); // get showToast function from toast context
 
-  const cartEntries = Object.entries(state.cart.items); // get cart items as [productId, qty] pairs because cart items are stored as an object
+  const [loading, setLoading] = useState(true);
+  const [productsMap, setProductsMap] = useState({}); // Map of productId -> product data
+
+  const cartEntries = Object.entries(state.cart.items); // get cart items as [productId, qty] pairs
+
+  // Fetch products from API when cart items change
+  useEffect(() => {
+    let alive = true;
+
+    async function loadProducts() {
+      const productIds = Object.keys(state.cart.items);
+
+      if (productIds.length === 0) {
+        setProductsMap({});
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // Fetch all products in parallel
+        const products = await Promise.all(
+          productIds.map(async (id) => {
+            try {
+              const product = await fetchProductById(id);
+              return { id, product };
+            } catch {
+              return { id, product: null }; // If product not found, return null
+            }
+          }),
+        );
+
+        if (!alive) return;
+
+        // Create a map of productId -> product data
+        const newMap = {};
+        products.forEach(({ id, product }) => {
+          if (product) newMap[id] = product;
+        });
+        setProductsMap(newMap);
+      } catch (err) {
+        if (!alive) return;
+        showToast("Failed to load cart products", { type: "danger" });
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      alive = false;
+    };
+  }, [state.cart.items, showToast]);
 
   const cartItems = cartEntries // map over cart entries to get full product details
     .map(([productId, qty]) => {
       // for each [productId, qty] pair
-      const product = findProduct(productId); // find the product by ID
+      const product = productsMap[productId]; // find the product from our fetched map
       if (!product) return null;
       return { product, qty };
     })
@@ -29,7 +79,7 @@ export default function Cart() {
     // calculate price summary using useMemo for optimization
     const subtotal = cartItems.reduce(
       (sum, { product, qty }) => sum + (product.price || 0) * qty,
-      0
+      0,
     );
 
     // Shipping is free for this example
@@ -38,6 +88,8 @@ export default function Cart() {
 
     return { subtotal, shipping, total }; // return summary object
   }, [cartItems]);
+
+  if (loading) return <Loader label="Loading cart..." />;
 
   return (
     <div className="row g-3">
@@ -118,13 +170,23 @@ export default function Cart() {
                         <button
                           className="btn btn-outline-dark btn-sm"
                           type="button"
-                          onClick={() =>
+                          onClick={() => {
+                            const currentQty =
+                              state.cart.items[product._id] || 0;
+
                             dispatch({
-                              // decrease quantity action
                               type: ACTIONS.CART_DEC,
                               payload: product._id,
-                            })
-                          }
+                            });
+
+                            if (currentQty <= 1) {
+                              showToast("Removed from cart", {
+                                type: "warning",
+                              });
+                            } else {
+                              showToast("Quantity decreased", { type: "info" });
+                            }
+                          }}
                         >
                           −
                         </button>
@@ -133,13 +195,13 @@ export default function Cart() {
                           className="btn btn-outline-dark btn-sm"
                           type="button"
                           disabled={!product.inStock}
-                          onClick={() =>
+                          onClick={() => {
                             dispatch({
-                              // increase quantity action
                               type: ACTIONS.CART_INC,
                               payload: product._id,
-                            })
-                          }
+                            });
+                            showToast("Quantity increased", { type: "info" });
+                          }}
                         >
                           +
                         </button>
@@ -147,12 +209,13 @@ export default function Cart() {
                         <button
                           className="btn btn-outline-danger btn-sm ms-auto"
                           type="button"
-                          onClick={() =>
+                          onClick={() => {
                             dispatch({
-                              type: ACTIONS.CART_REMOVE, // action to remove item from cart
+                              type: ACTIONS.CART_REMOVE,
                               payload: product._id,
-                            })
-                          }
+                            });
+                            showToast("Removed from cart", { type: "warning" });
+                          }}
                         >
                           Remove
                         </button>
@@ -162,12 +225,15 @@ export default function Cart() {
                         <button
                           className="btn btn-outline-secondary btn-sm"
                           type="button"
-                          onClick={() =>
+                          onClick={() => {
                             dispatch({
-                              type: ACTIONS.MOVE_CART_TO_WISHLIST, // action to move item from cart to wishlist
+                              type: ACTIONS.MOVE_CART_TO_WISHLIST,
                               payload: product._id,
-                            })
-                          }
+                            });
+                            showToast("Moved to wishlist ❤️", {
+                              type: "success",
+                            });
+                          }}
                         >
                           Move to Wishlist
                         </button>

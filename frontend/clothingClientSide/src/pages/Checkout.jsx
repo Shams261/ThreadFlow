@@ -1,27 +1,31 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useStore } from "../store/storeProvider"; // custom hook
-import { ACTIONS } from "../store/store"; // action types
-import { products as allProducts } from "../data/products"; // mock products data
+import { useStore } from "../store/storeProvider";
+import { ACTIONS } from "../store/store";
+import { useToast } from "../store/toastProvider";
+import Loader from "../components/common/Loader";
 
-function findProduct(id) {
-  // helper to find product by id
-  return allProducts.find((p) => p._id === id) || null; // return null if not found
+import { fetchProducts } from "../api/products.api";
+import { placeOrder as placeOrderApi } from "../api/orders.api";
+
+// Keep totals aligned with backend rules (orders.service.js)
+function calcPricing(subtotal) {
+  const shipping = subtotal >= 1999 ? 0 : subtotal > 0 ? 99 : 0;
+  const tax = Math.round(subtotal * 0.05);
+  const total = subtotal + shipping + tax;
+  return { shipping, tax, total };
 }
 
 function computeTotals(cartItems) {
-  // helper to compute subtotal, shipping, total
   const subtotal = cartItems.reduce(
-    (sum, { product, qty }) => sum + (product.price || 0) * qty,
+    (sum, { product, qty }) => sum + Number(product.price || 0) * qty,
     0,
   );
-  const shipping = subtotal > 0 ? 0 : 0;
-  const total = subtotal + shipping;
-  return { subtotal, shipping, total };
+  const { shipping, tax, total } = calcPricing(subtotal);
+  return { subtotal, shipping, tax, total };
 }
 
 const EMPTY_FORM = {
-  // empty address form
   name: "",
   phone: "",
   line1: "",
@@ -32,28 +36,61 @@ const EMPTY_FORM = {
 };
 
 export default function Checkout() {
-  // main Checkout component
-  const { state, dispatch } = useStore(); // global state and dispatch
-  const [success, setSuccess] = useState(false); // order success state
+  const { state, dispatch } = useStore();
+  const { showToast } = useToast();
 
-  // ---- cart summary
+  const [success, setSuccess] = useState(false);
+  const [placing, setPlacing] = useState(false);
+
+  // Products needed to map cart ids -> product objects
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  // Address form (add + edit)
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadProducts() {
+      try {
+        setProductsLoading(true);
+        const p = await fetchProducts();
+        if (!alive) return;
+        setProducts(p);
+      } catch (e) {
+        showToast(e.message || "Failed to load products", { type: "danger" });
+      } finally {
+        if (alive) setProductsLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      alive = false;
+    };
+  }, [showToast]);
+
+  const productMap = useMemo(() => {
+    const m = new Map();
+    products.forEach((p) => m.set(p._id, p));
+    return m;
+  }, [products]);
+
+  // Cart summary
   const cartEntries = Object.entries(state.cart.items); // [ [productId, qty], ... ]
   const cartItems = cartEntries
     .map(([productId, qty]) => {
-      const product = findProduct(productId);
+      const product = productMap.get(productId);
       if (!product) return null;
       return { product, qty };
     })
     .filter(Boolean);
 
-  const totals = useMemo(() => computeTotals(cartItems), [cartItems]); // memoized totals so that it doesn't recompute on every render
-
-  // ---- address form (add + edit)
-  const [form, setForm] = useState(EMPTY_FORM); // address form state
-  const [editingId, setEditingId] = useState(null); // currently editing address id
+  const totals = useMemo(() => computeTotals(cartItems), [cartItems]);
 
   const selectedAddress = state.addresses.list.find(
-    // selected address object
     (a) => a._id === state.addresses.selectedId,
   );
 
@@ -73,7 +110,6 @@ export default function Checkout() {
   }
 
   function startEdit(address) {
-    // populate form for editing
     setEditingId(address._id);
     setForm({
       name: address.name || "",
@@ -84,20 +120,21 @@ export default function Checkout() {
       pincode: address.pincode || "",
       country: address.country || "India",
     });
+    showToast("Editing address", { type: "info", duration: 1500 });
   }
 
   function cancelEdit() {
-    // cancel editing
     setEditingId(null);
     setForm(EMPTY_FORM);
   }
 
   function submitAddress(e) {
-    // handle address form submission
     e.preventDefault();
 
     if (!validateAddress(form)) {
-      alert("Please fill all required address fields.");
+      showToast("Please fill all required address fields.", {
+        type: "warning",
+      });
       return;
     }
 
@@ -106,40 +143,70 @@ export default function Checkout() {
         type: ACTIONS.ADDRESS_UPDATE,
         payload: { _id: editingId, updates: form },
       });
+      showToast("Address updated ✅", { type: "success" });
       cancelEdit();
       return;
     }
 
     dispatch({ type: ACTIONS.ADDRESS_ADD, payload: form });
+    showToast("Address added ✅", { type: "success" });
     setForm(EMPTY_FORM);
   }
 
-  function placeOrder() {
-    // handle order placement
+  function clearCartSafely() {
+    // uses only existing actions, no need for CART_CLEAR
+    for (const [productId] of Object.entries(state.cart.items)) {
+      dispatch({ type: ACTIONS.CART_REMOVE, payload: productId });
+    }
+  }
+
+  async function placeOrder() {
     if (cartItems.length === 0) return;
 
     if (!selectedAddress) {
-      alert("Please select an address to deliver the order.");
+      showToast("Please select a delivery address.", { type: "warning" });
       return;
     }
 
-    const itemsPayload = cartItems.map(({ product, qty }) => ({
-      productId: product._id,
-      qty,
-      priceAtPurchase: product.price || 0,
-    }));
+    try {
+      setPlacing(true);
 
-    dispatch({
-      type: ACTIONS.ORDER_PLACE,
-      payload: {
-        items: itemsPayload,
-        totals,
-        address: selectedAddress, // snapshot
-      },
-    });
+      const payload = {
+        items: cartItems.map(({ product, qty }) => ({
+          productId: product._id,
+          qty,
+        })),
+        address: {
+          fullName: selectedAddress.name,
+          phone: selectedAddress.phone,
+          line1: selectedAddress.line1,
+          line2: "",
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          pincode: selectedAddress.pincode,
+          country: selectedAddress.country || "India",
+        },
+      };
 
-    setSuccess(true);
+      const order = await placeOrderApi(payload);
+
+      // optional: keep local state history if your reducer supports it
+      try {
+        dispatch({ type: ACTIONS.ORDER_PLACE, payload: order });
+      } catch (_) {}
+
+      clearCartSafely();
+
+      showToast("Order placed successfully ✅", { type: "success" });
+      setSuccess(true);
+    } catch (e) {
+      showToast(e.message || "Failed to place order", { type: "danger" });
+    } finally {
+      setPlacing(false);
+    }
   }
+
+  if (productsLoading) return <Loader label="Loading checkout..." />;
 
   if (success) {
     return (
@@ -207,12 +274,15 @@ export default function Checkout() {
                           type="radio"
                           name="selectedAddress"
                           checked={isSelected}
-                          onChange={() =>
+                          onChange={() => {
                             dispatch({
                               type: ACTIONS.ADDRESS_SELECT,
                               payload: a._id,
-                            })
-                          }
+                            });
+                            showToast("Address selected ✅", {
+                              type: "success",
+                            });
+                          }}
                         />
 
                         <div className="flex-grow-1">
@@ -250,12 +320,15 @@ export default function Checkout() {
                             <button
                               type="button"
                               className="btn btn-sm btn-outline-danger"
-                              onClick={() =>
+                              onClick={() => {
                                 dispatch({
                                   type: ACTIONS.ADDRESS_DELETE,
                                   payload: a._id,
-                                })
-                              }
+                                });
+                                showToast("Address deleted", {
+                                  type: "warning",
+                                });
+                              }}
                             >
                               Delete
                             </button>
@@ -389,11 +462,17 @@ export default function Checkout() {
                   <span className="text-muted">Subtotal</span>
                   <span>₹{totals.subtotal}</span>
                 </div>
+
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Shipping</span>
                   <span>
                     {totals.shipping === 0 ? "FREE" : `₹${totals.shipping}`}
                   </span>
+                </div>
+
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="text-muted">Tax</span>
+                  <span>₹{totals.tax}</span>
                 </div>
 
                 <hr />
@@ -406,14 +485,14 @@ export default function Checkout() {
                 <button
                   className="btn btn-dark w-100"
                   onClick={placeOrder}
-                  disabled={!selectedAddress}
+                  disabled={!selectedAddress || placing}
                 >
-                  Place Order
+                  {placing ? "Placing..." : "Place Order"}
                 </button>
 
                 {!selectedAddress ? (
                   <small className="text-danger d-block mt-2">
-                    Select an address to Place order.
+                    Select an address to place order.
                   </small>
                 ) : null}
               </>

@@ -1,16 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../store/storeProvider";
+import { useToast } from "../store/toastProvider";
 import { ACTIONS } from "../store/store";
-import { products as allProducts } from "../data/products";
+import Loader from "../components/common/Loader";
 
-function findProduct(id) {
-  // find product by id
-  return allProducts.find((p) => p._id === id) || null; // find product by id
-}
+import { fetchOrders } from "../api/orders.api";
 
 const EMPTY_FORM = {
-  // empty address form
   name: "",
   phone: "",
   line1: "",
@@ -21,14 +18,38 @@ const EMPTY_FORM = {
 };
 
 export default function Profile() {
-  // main Profile component
-  const { state, dispatch } = useStore(); // global state and dispatch
+  const { state, dispatch } = useStore();
+  const { showToast } = useToast();
 
   // Address form (add/edit)
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
 
-  const orders = state.orders.list;
+  // Orders from backend
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadOrders() {
+      try {
+        setLoadingOrders(true);
+        const data = await fetchOrders();
+        if (!alive) return;
+        setOrders(data);
+      } catch (e) {
+        showToast(e.message || "Failed to load orders", { type: "danger" });
+      } finally {
+        if (alive) setLoadingOrders(false);
+      }
+    }
+
+    loadOrders();
+    return () => {
+      alive = false;
+    };
+  }, [showToast]);
 
   const latestOrders = useMemo(() => orders.slice(0, 5), [orders]);
 
@@ -48,7 +69,6 @@ export default function Profile() {
   }
 
   function startEdit(address) {
-    // populate form for editing
     setEditingId(address._id);
     setForm({
       name: address.name || "",
@@ -62,32 +82,36 @@ export default function Profile() {
   }
 
   function cancelEdit() {
-    // cancel editing
     setEditingId(null);
     setForm(EMPTY_FORM);
   }
 
   function submitAddress(e) {
-    // handle address form submission
     e.preventDefault();
+
     if (!validateAddress(form)) {
-      alert("Please fill all required address fields.");
+      showToast("Please fill all required address fields.", {
+        type: "warning",
+      });
       return;
     }
 
     if (editingId) {
-      // update existing address
       dispatch({
         type: ACTIONS.ADDRESS_UPDATE,
-        payload: { _id: editingId, updates: form }, // send id and updates
+        payload: { _id: editingId, updates: form },
       });
+      showToast("Address updated ✅", { type: "success" });
       cancelEdit();
       return;
     }
 
-    dispatch({ type: ACTIONS.ADDRESS_ADD, payload: form }); // add new address
+    dispatch({ type: ACTIONS.ADDRESS_ADD, payload: form });
+    showToast("Address added ✅", { type: "success" });
     setForm(EMPTY_FORM);
   }
+
+  if (loadingOrders) return <Loader label="Loading profile..." />;
 
   return (
     <div className="row g-3">
@@ -112,8 +136,6 @@ export default function Profile() {
             <Link to="/products" className="btn btn-outline-dark w-100 mt-3">
               Browse Products
             </Link>
-
-            <small className="text-muted d-block mt-2"></small>
           </div>
         </div>
 
@@ -154,12 +176,15 @@ export default function Profile() {
                             type="radio"
                             name="selectedAddressProfile"
                             checked={isSelected}
-                            onChange={() =>
+                            onChange={() => {
                               dispatch({
                                 type: ACTIONS.ADDRESS_SELECT,
                                 payload: a._id,
-                              })
-                            }
+                              });
+                              showToast("Default address selected ✅", {
+                                type: "success",
+                              });
+                            }}
                           />
                           <div>
                             <div className="fw-semibold">
@@ -185,19 +210,27 @@ export default function Profile() {
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-dark"
-                          onClick={() => startEdit(a)}
+                          onClick={() => {
+                            startEdit(a);
+                            showToast("Editing address", {
+                              type: "info",
+                              duration: 1500,
+                            });
+                          }}
                         >
                           Edit
                         </button>
+
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger"
-                          onClick={() =>
+                          onClick={() => {
                             dispatch({
                               type: ACTIONS.ADDRESS_DELETE,
                               payload: a._id,
-                            })
-                          }
+                            });
+                            showToast("Address deleted", { type: "warning" });
+                          }}
                         >
                           Delete
                         </button>
@@ -224,6 +257,7 @@ export default function Profile() {
                   onChange={onFormChange}
                 />
               </div>
+
               <div className="col-12">
                 <input
                   className="form-control"
@@ -233,6 +267,7 @@ export default function Profile() {
                   onChange={onFormChange}
                 />
               </div>
+
               <div className="col-12">
                 <input
                   className="form-control"
@@ -242,6 +277,7 @@ export default function Profile() {
                   onChange={onFormChange}
                 />
               </div>
+
               <div className="col-12 col-md-4">
                 <input
                   className="form-control"
@@ -251,6 +287,7 @@ export default function Profile() {
                   onChange={onFormChange}
                 />
               </div>
+
               <div className="col-12 col-md-4">
                 <input
                   className="form-control"
@@ -260,6 +297,7 @@ export default function Profile() {
                   onChange={onFormChange}
                 />
               </div>
+
               <div className="col-12 col-md-4">
                 <input
                   className="form-control"
@@ -274,6 +312,7 @@ export default function Profile() {
                 <button className="btn btn-dark" type="submit">
                   {editingId ? "Save Changes" : "Add Address"}
                 </button>
+
                 {editingId ? (
                   <button
                     type="button"
@@ -329,22 +368,19 @@ export default function Profile() {
 
                     <div className="mt-2 text-muted" style={{ fontSize: 14 }}>
                       Items: {o.items.reduce((s, it) => s + it.qty, 0)} • Total:
-                      ₹{o.totals.total}
+                      ₹{o.total}
                     </div>
 
                     <div className="mt-2 text-muted" style={{ fontSize: 13 }}>
-                      Delivered to: {o.address.name}, {o.address.city}
+                      Delivered to: {o.address.fullName}, {o.address.city}
                     </div>
 
                     <ul className="mb-0 mt-2" style={{ fontSize: 13 }}>
-                      {o.items.slice(0, 3).map((it) => {
-                        const p = findProduct(it.productId);
-                        return (
-                          <li key={it.productId}>
-                            {p ? p.title : it.productId} — Qty {it.qty}
-                          </li>
-                        );
-                      })}
+                      {o.items.slice(0, 3).map((it) => (
+                        <li key={String(it.productId)}>
+                          {it.title} — Qty {it.qty}
+                        </li>
+                      ))}
                       {o.items.length > 3 ? <li>…more</li> : null}
                     </ul>
                   </div>

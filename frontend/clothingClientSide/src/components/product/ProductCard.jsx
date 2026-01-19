@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/storeProvider"; // import global store
 import { ACTIONS } from "../../store/store"; // import action types
+import { useToast } from "../../store/toastProvider"; // import useToast hook
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
   const { dispatch, state } = useStore(); // get dispatch and state from global store means re-render on state changes
   // matlab jab wishlist or cart change hoga toh yeh component bhi re-render hoga
-
+  const { showToast } = useToast(); // get showToast function from toast context
   const {
     _id,
     title,
@@ -82,7 +83,8 @@ export default function ProductCard({ product }) {
               disabled={!inStock}
               onClick={(e) => {
                 e.stopPropagation();
-                dispatch({ type: ACTIONS.CART_ADD, payload: _id }); // add to cart action
+                dispatch({ type: ACTIONS.CART_ADD, payload: _id });
+                showToast("Added to cart ✅", { type: "success" });
               }}
             >
               Add to Cart
@@ -93,7 +95,13 @@ export default function ProductCard({ product }) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                dispatch({ type: ACTIONS.WISHLIST_TOGGLE, payload: _id }); // toggle wishlist action
+                dispatch({ type: ACTIONS.WISHLIST_TOGGLE, payload: _id });
+                showToast(
+                  wished ? "Removed from wishlist" : "Added to wishlist ❤️",
+                  {
+                    type: wished ? "warning" : "info",
+                  },
+                );
               }}
             >
               {wished ? "Wishlisted" : "Wishlist"}

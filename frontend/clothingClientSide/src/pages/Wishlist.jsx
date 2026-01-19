@@ -1,20 +1,61 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useStore } from "../store/storeProvider"; // import global store
 import { ACTIONS } from "../store/store"; // import action types
-import { products as allProducts } from "../data/products"; // import all products data
-
-function findProduct(productId) {
-  // this function helps to find product by ID
-  return allProducts.find((p) => p._id === productId) || null;
-}
+import { useToast } from "../store/toastProvider"; // import useToast hook
+import { fetchProductById } from "../api/products.api"; // import API function
+import Loader from "../components/common/Loader";
 
 export default function Wishlist() {
   // Wishlist page component
   const { state, dispatch } = useStore(); // get global state and dispatch from store provider dispatch is used to send actions to update the state
+  const { showToast } = useToast(); // get showToast function from toast context
 
-  const wishlistProducts = state.wishlist.ids.map(findProduct).filter(Boolean); // get products in wishlist by mapping IDs to product objects
-  // filter(Boolean) removes any nulls in case a product ID is not found agar ksii product ID ka data nhi mila to null aa jata hai
-  // use filter krke hata dete hain
+  const [loading, setLoading] = useState(true);
+  const [wishlistProducts, setWishlistProducts] = useState([]);
+
+  // Fetch products from API when wishlist IDs change
+  useEffect(() => {
+    let alive = true;
+
+    async function loadProducts() {
+      if (state.wishlist.ids.length === 0) {
+        setWishlistProducts([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // Fetch all products in parallel
+        const products = await Promise.all(
+          state.wishlist.ids.map(async (id) => {
+            try {
+              return await fetchProductById(id);
+            } catch {
+              return null; // If product not found, return null
+            }
+          }),
+        );
+
+        if (!alive) return;
+        setWishlistProducts(products.filter(Boolean)); // Remove nulls
+      } catch {
+        if (!alive) return;
+        showToast("Failed to load wishlist products", { type: "danger" });
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      alive = false;
+    };
+  }, [state.wishlist.ids, showToast]);
+
+  if (loading) return <Loader label="Loading wishlist..." />;
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -90,24 +131,26 @@ export default function Wishlist() {
                     <button
                       className="btn btn-dark"
                       disabled={!p.inStock}
-                      onClick={() =>
+                      onClick={() => {
                         dispatch({
-                          type: ACTIONS.MOVE_WISHLIST_TO_CART, // action to move item from wishlist to cart
-                          payload: p._id, // product ID as payload
-                        })
-                      }
+                          type: ACTIONS.MOVE_WISHLIST_TO_CART,
+                          payload: p._id,
+                        });
+                        showToast("Moved to cart ✅", { type: "success" });
+                      }}
                     >
                       Move to Cart
                     </button>
 
                     <button
                       className="btn btn-outline-dark"
-                      onClick={() =>
+                      onClick={() => {
                         dispatch({
-                          type: ACTIONS.WISHLIST_TOGGLE, // action to toggle wishlist item
-                          payload: p._id, // product ID as payload
-                        })
-                      }
+                          type: ACTIONS.WISHLIST_TOGGLE,
+                          payload: p._id,
+                        });
+                        showToast("Removed from wishlist", { type: "warning" });
+                      }}
                     >
                       Remove
                     </button>

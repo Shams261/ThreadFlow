@@ -1,25 +1,62 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { products as allProducts } from "../data/products";
-import { useStore } from "../store/storeProvider"; // import global store
-import { ACTIONS } from "../store/store"; // import action types
+
+import { useStore } from "../store/storeProvider";
+import { ACTIONS } from "../store/store";
+import { useToast } from "../store/toastProvider";
+
+import Loader from "../components/common/Loader";
+import { fetchProductById } from "../api/products.api";
 
 export default function ProductDetail() {
-  const { dispatch, state } = useStore(); // get dispatch and state from global store means re-render on state changes
-  const { id } = useParams(); // get product ID from URL params
-  const navigate = useNavigate(); // for navigation (e.g., go back)
+  const { dispatch, state } = useStore();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  // Find the product by ID using useMemo for optimization
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(null);
+  const [notFound, setNotFound] = useState(false);
 
-  const product = useMemo(() => {
-    return allProducts.find((p) => p._id === id) || null;
-  }, [id]);
+  useEffect(() => {
+    let alive = true;
 
-  const wished = product ? state.wishlist.ids.includes(product._id) : false; // check if product is in wishlist
+    async function load() {
+      try {
+        setLoading(true);
+        setNotFound(false);
 
-  // If product not found, show message and back button
+        const p = await fetchProductById(id);
 
-  if (!product) {
+        if (!alive) return;
+        setProduct(p);
+      } catch (err) {
+        if (!alive) return;
+
+        // If backend returns 404 -> treat as notFound
+        const msg = err?.message || "Failed to load product";
+
+        if (msg.toLowerCase().includes("not found") || msg.includes("404")) {
+          setNotFound(true);
+          setProduct(null);
+          return;
+        }
+
+        showToast(msg, { type: "danger" });
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [id, showToast]);
+
+  if (loading) return <Loader label="Loading product details..." />;
+
+  if (notFound || !product) {
     return (
       <div className="alert alert-warning">
         <h4 className="mb-2">Product not found</h4>
@@ -32,6 +69,8 @@ export default function ProductDetail() {
       </div>
     );
   }
+
+  const wished = state.wishlist.ids.includes(product._id);
 
   const {
     title,
@@ -53,7 +92,7 @@ export default function ProductDetail() {
 
   return (
     <div>
-      {/* Simple back link to products list (Breadcrumb-ish) */}
+      {/* Back link */}
       <div className="mb-3">
         <Link to="/products" className="text-decoration-none">
           ← Back to Products
@@ -61,7 +100,7 @@ export default function ProductDetail() {
       </div>
 
       <div className="row g-4">
-        {/* Main image and thumbnails */}
+        {/* Images */}
         <div className="col-12 col-lg-5">
           <div className="border rounded overflow-hidden bg-light">
             {mainImg ? (
@@ -80,7 +119,7 @@ export default function ProductDetail() {
               </div>
             )}
           </div>
-          {/* Show if more than 1 image */}
+
           {images?.length > 1 ? (
             <div className="d-flex gap-2 mt-2 flex-wrap">
               {images.slice(0, 4).map((src, idx) => (
@@ -100,15 +139,20 @@ export default function ProductDetail() {
             </div>
           ) : null}
         </div>
-        {/* Product details */}
+
+        {/* Details */}
         <div className="col-12 col-lg-7">
           <h2 className="mb-1">{title}</h2>
           <p className="text-muted mb-2">{brand}</p>
+
           <div className="d-flex align-items-center gap-2 mb-2">
             <span className="badge bg-dark">⭐ {rating}</span>
             <small className="text-muted">({ratingCount} ratings)</small>
-            <small className="text-muted">• {categoryId}</small>
+
+            {/* for now categoryId is an ObjectId. later we’ll populate category name from backend */}
+            <small className="text-muted">• {product.category?.name}</small>
           </div>
+
           <div className="d-flex align-items-baseline gap-2 mb-3">
             <span className="fs-4 fw-bold">₹{price}</span>
             {originalPrice ? (
@@ -120,8 +164,9 @@ export default function ProductDetail() {
               <span className="badge bg-success">{discountPercent}% OFF</span>
             ) : null}
           </div>
+
           <p className="mb-3">{description}</p>
-          {/* Stock status */}
+
           <div className="mb-3">
             {inStock ? (
               <span className="badge bg-success">
@@ -131,7 +176,7 @@ export default function ProductDetail() {
               <span className="badge bg-danger">Out of Stock</span>
             )}
           </div>
-          {/* Sizes only show if available */}
+
           {Array.isArray(sizes) && sizes.length > 0 ? (
             <div className="mb-3">
               <h6 className="text-muted text-uppercase">Sizes</h6>
@@ -144,26 +189,31 @@ export default function ProductDetail() {
               </div>
             </div>
           ) : null}
-          {/* Actions buttons when in stock */}
+
           <div className="d-flex gap-2 flex-wrap">
             <button
               className="btn btn-dark"
               disabled={!inStock}
-              onClick={() =>
-                dispatch({ type: ACTIONS.CART_ADD, payload: product._id })
-              }
+              onClick={() => {
+                dispatch({ type: ACTIONS.CART_ADD, payload: product._id });
+                showToast("Added to cart ✅", { type: "success" });
+              }}
             >
               Add to Cart
             </button>
 
             <button
               className="btn btn-outline-dark"
-              onClick={() =>
+              onClick={() => {
                 dispatch({
                   type: ACTIONS.WISHLIST_TOGGLE,
                   payload: product._id,
-                })
-              }
+                });
+                showToast(
+                  wished ? "Removed from wishlist" : "Added to wishlist ❤️",
+                  { type: wished ? "warning" : "info" },
+                );
+              }}
             >
               {wished ? "Remove from Wishlist" : "Wishlist"}
             </button>
