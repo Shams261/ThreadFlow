@@ -1,19 +1,61 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../../store/storeProvider";
 
-export default function Navbar() {
+// Separate search form component that resets when URL search param changes
+function SearchForm({ initialQuery }) {
   const navigate = useNavigate();
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQuery);
 
-  const { cartCount, wishlistCount } = useStore(); // get counts from global store taaki re-render ho on changes
+  function handleSubmit(e) {
+    e.preventDefault();
+    const query = q.trim();
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const trimmed = q.trim();
-    if (!trimmed) return navigate("/products");
-    navigate(`/products?search=${encodeURIComponent(trimmed)}`);
+    if (!query) {
+      navigate("/products");
+      return;
+    }
+    navigate(`/products?search=${encodeURIComponent(query)}`);
   }
+
+  function clearSearch() {
+    setQ("");
+    navigate("/products");
+  }
+
+  return (
+    <form className="d-flex gap-2" onSubmit={handleSubmit} role="search">
+      <input
+        className="form-control"
+        type="search"
+        placeholder="Search products…"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        aria-label="Search"
+      />
+      <button className="btn btn-outline-dark" type="submit">
+        Search
+      </button>
+      {q && (
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={clearSearch}
+        >
+          Clear
+        </button>
+      )}
+    </form>
+  );
+}
+
+export default function Navbar() {
+  const location = useLocation();
+  const { cartCount, wishlistCount } = useStore();
+
+  // Get current search query from URL
+  const params = new URLSearchParams(location.search);
+  const searchQuery = params.get("search") || "";
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
@@ -43,12 +85,18 @@ export default function Navbar() {
             </li>
             <li className="nav-item">
               <NavLink to="/wishlist" className="nav-link">
-                Wishlist ({wishlistCount})
+                Wishlist
+                {wishlistCount > 0 && (
+                  <span className="badge bg-danger ms-1">{wishlistCount}</span>
+                )}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink to="/cart" className="nav-link">
-                Cart ({cartCount})
+                Cart
+                {cartCount > 0 && (
+                  <span className="badge bg-primary ms-1">{cartCount}</span>
+                )}
               </NavLink>
             </li>
             <li className="nav-item">
@@ -58,19 +106,8 @@ export default function Navbar() {
             </li>
           </ul>
 
-          <form className="d-flex" onSubmit={handleSubmit} role="search">
-            <input
-              className="form-control me-2"
-              type="search"
-              placeholder="Search products…"
-              aria-label="Search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-            <button className="btn btn-outline-dark" type="submit">
-              Search
-            </button>
-          </form>
+          {/* Key prop resets SearchForm when URL search changes */}
+          <SearchForm key={searchQuery} initialQuery={searchQuery} />
         </div>
       </div>
     </nav>
