@@ -20,11 +20,13 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://thread-flow-green.vercel.app",
-    ],
+    origin: process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(",")
+      : [
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "https://thread-flow-green.vercel.app",
+        ],
     credentials: true,
   }),
 );
