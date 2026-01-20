@@ -1,38 +1,38 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const RAW_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const BASE_URL = RAW_BASE_URL.replace(/\/+$/, ""); // trailing / hatao
 
-export async function httpGet(path) {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    // ✅ Sahi
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+async function request(path, options = {}) {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+  const res = await fetch(`${BASE_URL}${cleanPath}`, {
+    // Allow callers to override anything via `options`, but keep sane defaults
+    ...options,
+    credentials: options.credentials ?? "include",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
   });
 
-  if (!res.ok) {
-    let message = `Request failed: ${res.status}`;
-    try {
-      const data = await res.json();
-      message = data?.message || message;
-    } catch {}
-    throw new Error(message);
-  }
-  return res.json();
-}
+  // 204 No Content
+  if (res.status === 204) return null;
 
-export async function httpPost(path, body) {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    // ✅ Sahi
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let data = null;
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    data = await res.json().catch(() => null);
+  } else {
+    data = await res.text().catch(() => null);
+  }
 
   if (!res.ok) {
-    let message = `Request failed: ${res.status}`;
-    try {
-      const data = await res.json();
-      message = data?.message || message;
-    } catch {}
-    throw new Error(message);
+    throw new Error(data?.message || `Request failed: ${res.status}`);
   }
-  return res.json();
+
+  return data;
 }
+
+export const httpGet = (path) => request(path, { method: "GET" });
+export const httpPost = (path, body) =>
+  request(path, { method: "POST", body: JSON.stringify(body) });
