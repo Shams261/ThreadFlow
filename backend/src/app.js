@@ -20,12 +20,13 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-   'http://localhost:5173',
-    'http://localhost:5174',
-    'https://itfinder-umber.vercel.app',  // Tumhara Vercel URL
-  ],
-  credentials: true
-  }),
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://itfinder-umber.vercel.app",
+    ],
+    credentials: true,
+  })
 );
 
 app.get("/health", (req, res) => res.json({ ok: true }));
