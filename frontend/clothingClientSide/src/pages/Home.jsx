@@ -72,7 +72,7 @@ export default function Home() {
   return (
     <div className="home-page">
       {/* Hero Section */}
-      <section className="hero-section position-relative overflow-hidden mb-5">
+      <section className="hero-section position-relative overflow-hidden mb-4">
         <div
           className="hero-bg position-absolute w-100 h-100"
           style={{
@@ -81,17 +81,17 @@ export default function Home() {
             zIndex: -1,
           }}
         />
-        <div className="container py-5">
-          <div className="row align-items-center min-vh-50 py-5">
+        <div className="container py-3 py-md-5">
+          <div className="row align-items-center hero-min-height py-3 py-md-4">
             <div className="col-lg-6 text-white">
               <span
-                className="badge bg-warning text-dark px-3 py-2 mb-3"
+                className="badge bg-warning text-dark px-2 px-md-3 py-1 py-md-2 mb-2 mb-md-3 small"
                 style={{ animation: "fadeInUp 0.6s ease-out" }}
               >
                 ✨ New Collection 2026
               </span>
               <h1
-                className="display-3 fw-bold mb-4"
+                className="hero-title fw-bold mb-3 mb-md-4"
                 style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}
               >
                 Elevate Your
@@ -109,34 +109,24 @@ export default function Home() {
                 </span>
               </h1>
               <p
-                className="lead mb-4 opacity-75"
+                className="hero-subtitle mb-3 mb-md-4 opacity-75"
                 style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}
               >
                 Discover curated fashion that speaks to your unique personality.
-                From streetwear essentials to timeless classics.
               </p>
               <div
-                className="d-flex gap-3 flex-wrap"
+                className="d-flex gap-2 gap-md-3 flex-wrap"
                 style={{ animation: "fadeInUp 0.6s ease-out 0.3s both" }}
               >
                 <Link
                   to="/products"
-                  className="btn btn-light btn-lg px-4 py-2 rounded-pill fw-semibold"
-                  style={{ transition: "transform 0.2s, box-shadow 0.2s" }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "translateY(-2px)";
-                    e.target.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "translateY(0)";
-                    e.target.style.boxShadow = "none";
-                  }}
+                  className="btn btn-light hero-btn px-3 px-md-4 py-2 rounded-pill fw-semibold"
                 >
                   Shop Now →
                 </Link>
                 <Link
                   to="/products"
-                  className="btn btn-outline-light btn-lg px-4 py-2 rounded-pill"
+                  className="btn btn-outline-light hero-btn px-3 px-md-4 py-2 rounded-pill d-none d-md-inline-block"
                 >
                   View Lookbook
                 </Link>
@@ -158,7 +148,7 @@ export default function Home() {
                     src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=600&auto=format&fit=crop&q=80"
                     alt="Fashion Hero"
                     className="img-fluid"
-                    style={{ height: 450, objectFit: "cover", width: "100%" }}
+                    style={{ height: 350, objectFit: "cover", width: "100%" }}
                   />
                 </div>
                 <div
@@ -186,9 +176,9 @@ export default function Home() {
       </section>
 
       {/* Features Strip */}
-      <section className="bg-light py-4 mb-5">
+      <section className="bg-light py-3 py-md-4 mb-3 mb-md-4">
         <div className="container">
-          <div className="row g-4 text-center">
+          <div className="row g-3 text-center">
             {[
               {
                 icon: "🚚",
@@ -214,9 +204,13 @@ export default function Home() {
                     animation: `fadeInUp 0.5s ease-out ${i * 0.1}s both`,
                   }}
                 >
-                  <span className="fs-2 mb-2">{feature.icon}</span>
-                  <h6 className="mb-1">{feature.title}</h6>
-                  <small className="text-muted">{feature.desc}</small>
+                  <span className="fs-3 fs-md-2 mb-1 mb-md-2">
+                    {feature.icon}
+                  </span>
+                  <h6 className="mb-1 small fw-bold">{feature.title}</h6>
+                  <small className="text-muted d-none d-md-block">
+                    {feature.desc}
+                  </small>
                 </div>
               </div>
             ))}
@@ -225,12 +219,14 @@ export default function Home() {
       </section>
 
       {/* Shop by Category */}
-      <section className="container mb-5">
-        <div className="text-center mb-4">
-          <h2 className="fw-bold mb-2">Shop by Category</h2>
-          <p className="text-muted">Find exactly what you're looking for</p>
+      <section className="container mb-3 mb-md-4">
+        <div className="text-center mb-3 mb-md-4">
+          <h2 className="fw-bold mb-1 h3">Shop by Category</h2>
+          <p className="text-muted small mb-0">
+            Find exactly what you're looking for
+          </p>
         </div>
-        <div className="row g-4">
+        <div className="row g-3">
           {categories.map((cat, i) => (
             <div className="col-6 col-lg-3" key={cat._id}>
               <Link
@@ -239,9 +235,9 @@ export default function Home() {
                 style={{ animation: `fadeInUp 0.5s ease-out ${i * 0.1}s both` }}
               >
                 <div
-                  className="category-card position-relative rounded-4 overflow-hidden"
+                  className="category-card position-relative rounded-3 overflow-hidden"
                   style={{
-                    height: 280,
+                    height: 200,
                     transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
@@ -278,20 +274,22 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="container mb-5">
-        <div className="d-flex justify-content-between align-items-center mb-4">
+      <section className="container mb-3 mb-md-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 className="fw-bold mb-1">Featured Products</h2>
-            <p className="text-muted mb-0">Handpicked just for you</p>
+            <h2 className="fw-bold mb-0 h3">Featured Products</h2>
+            <p className="text-muted mb-0 small d-none d-md-block">
+              Handpicked just for you
+            </p>
           </div>
           <Link
             to="/products"
-            className="btn btn-outline-dark rounded-pill px-4"
+            className="btn btn-outline-dark rounded-pill px-3 px-md-4 btn-sm"
           >
             View All
           </Link>
         </div>
-        <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+        <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
           {featuredProducts.map((product, i) => (
             <div
               className="col"
@@ -305,31 +303,31 @@ export default function Home() {
       </section>
 
       {/* Promotional Banner */}
-      <section className="container mb-5">
+      <section className="container mb-3 mb-md-4">
         <div
-          className="rounded-4 overflow-hidden position-relative"
+          className="rounded-3 overflow-hidden position-relative"
           style={{
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            minHeight: 300,
+            minHeight: 200,
           }}
         >
           <div className="row align-items-center h-100">
-            <div className="col-lg-6 p-5 text-white">
-              <span className="badge bg-white text-dark mb-3">
+            <div className="col-lg-6 p-3 p-md-5 text-white text-center text-lg-start">
+              <span className="badge bg-white text-dark mb-2 small">
                 Limited Time Offer
               </span>
-              <h2 className="display-5 fw-bold mb-3">
+              <h2 className="h3 fw-bold mb-2">
                 Get 30% Off
                 <br />
                 Your First Order
               </h2>
-              <p className="mb-4 opacity-75">
+              <p className="mb-3 opacity-75 small">
                 Use code <strong className="text-warning">WELCOME30</strong> at
                 checkout
               </p>
               <Link
                 to="/products"
-                className="btn btn-light btn-lg rounded-pill px-4 fw-semibold"
+                className="btn btn-light rounded-pill px-3 px-md-4 fw-semibold"
               >
                 Claim Offer
               </Link>
@@ -338,9 +336,9 @@ export default function Home() {
               <img
                 src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&auto=format&fit=crop&q=60"
                 alt="Promo"
-                className="img-fluid rounded-4 shadow-lg"
+                className="img-fluid rounded-3 shadow-lg"
                 style={{
-                  maxHeight: 280,
+                  maxHeight: 220,
                   objectFit: "cover",
                   transform: "rotate(-5deg)",
                 }}
@@ -351,18 +349,23 @@ export default function Home() {
       </section>
 
       {/* New Arrivals */}
-      <section className="bg-light py-5 mb-5">
+      <section className="bg-light py-3 py-md-4 mb-3 mb-md-4">
         <div className="container">
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-3">
             <div>
-              <h2 className="fw-bold mb-1">New Arrivals</h2>
-              <p className="text-muted mb-0">Fresh drops you'll love</p>
+              <h2 className="fw-bold mb-0 h3">New Arrivals</h2>
+              <p className="text-muted mb-0 small d-none d-md-block">
+                Fresh drops you'll love
+              </p>
             </div>
-            <Link to="/products" className="btn btn-dark rounded-pill px-4">
+            <Link
+              to="/products"
+              className="btn btn-dark rounded-pill px-3 px-md-4 btn-sm"
+            >
               Shop New
             </Link>
           </div>
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+          <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
             {newArrivals.map((product, i) => (
               <div
                 className="col"
@@ -377,16 +380,16 @@ export default function Home() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="container mb-5">
+      <section className="container mb-3 mb-md-4">
         <div
-          className="rounded-4 p-5 text-center"
+          className="rounded-3 p-3 p-md-5 text-center"
           style={{
             background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
           }}
         >
-          <h3 className="text-white fw-bold mb-2">Stay in the Loop</h3>
-          <p className="text-white-50 mb-4">
-            Subscribe for exclusive deals, new arrivals, and style tips
+          <h3 className="text-white fw-bold mb-2 h4">Stay in the Loop</h3>
+          <p className="text-white-50 mb-3 small">
+            Subscribe for exclusive deals and new arrivals
           </p>
           <form
             className="d-flex gap-2 justify-content-center flex-wrap"
@@ -395,13 +398,13 @@ export default function Home() {
           >
             <input
               type="email"
-              className="form-control form-control-lg rounded-pill px-4"
+              className="form-control rounded-pill px-3 px-md-4"
               placeholder="Enter your email"
-              style={{ flex: "1 1 300px" }}
+              style={{ flex: "1 1 200px" }}
             />
             <button
               type="submit"
-              className="btn btn-warning btn-lg rounded-pill px-4 fw-semibold"
+              className="btn btn-warning rounded-pill px-3 px-md-4 fw-semibold"
             >
               Subscribe
             </button>
@@ -442,16 +445,28 @@ export default function Home() {
           }
         }
         
-        .min-vh-50 {
-          min-height: 50vh;
+        .hero-min-height {
+          min-height: auto;
+        }
+        
+        @media (min-width: 768px) {
+          .hero-min-height {
+            min-height: 40vh;
+          }
         }
         
         .category-card img {
           transition: transform 0.5s ease;
         }
         
-        .category-card:hover img {
-          transform: scale(1.1);
+        @media (min-width: 768px) {
+          .category-card:hover img {
+            transform: scale(1.1);
+          }
+          
+          .category-card {
+            height: 250px !important;
+          }
         }
       `}</style>
     </div>

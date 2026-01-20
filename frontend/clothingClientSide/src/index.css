@@ -147,39 +147,82 @@ a:hover {
 /* Home Page */
 .home-page {
   padding-top: 0;
+  overflow-x: hidden;
 }
 
 .hero-section {
-  min-height: 70vh;
+  min-height: auto;
   display: flex;
   align-items: center;
 }
 
-.hero-section .badge {
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.hero-title {
+  font-size: 2rem;
+  line-height: 1.2;
 }
 
-.hero-section .btn-lg {
-  font-size: 1rem;
+.hero-subtitle {
+  font-size: 0.95rem;
+}
+
+.hero-btn {
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    min-height: 50vh;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-btn {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .hero-section {
+    min-height: 60vh;
+  }
+}
+
+.hero-section .badge {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .category-card {
   box-shadow: var(--shadow-soft);
 }
 
-@media (max-width: 767.98px) {
-  .hero-section {
-    min-height: auto;
-    padding: 3rem 0 2rem;
+/* Mobile optimizations */
+@media (max-width: 575.98px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
-  .hero-section .display-3 {
-    font-size: 2.3rem;
+  .hero-title {
+    font-size: 1.75rem;
   }
 
-  .hero-section .lead {
-    font-size: 1rem;
+  .hero-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .category-card {
+    height: 180px !important;
+  }
+
+  section {
+    margin-bottom: 1.5rem !important;
   }
 }
 
