@@ -1,8 +1,207 @@
-/* Root CSS Variables */
+/* Design System */
 :root {
   --primary-brand: #0d6efd;
+  --primary-soft: #e0ebff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --bg-page: #f5f5f7;
+  --bg-elevated: #ffffff;
+  --border-subtle: #e5e7eb;
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+}
+
+body {
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: inherit;
 }
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Navbar */
+.navbar.sticky-top {
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.navbar .navbar-brand {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.navbar .nav-link {
+  position: relative;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding-inline: 0.9rem;
+}
+
+.navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4f46e5, #ec4899);
+  opacity: 0;
+  transform: scaleX(0.5);
+  transform-origin: center;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: #111827;
+}
+
+.navbar .nav-link:hover::after,
+.navbar .nav-link.active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.navbar .badge {
+  font-size: 0.7rem;
+}
+
+.navbar .form-control {
+  border-radius: 999px;
+  border-color: transparent;
+  background-color: #f3f4f6;
+}
+
+.navbar .form-control:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+  border-color: transparent;
+}
+
+.navbar button.btn {
+  border-radius: 999px;
+}
+
+@media (max-width: 767.98px) {
+  .navbar .navbar-collapse {
+    background-color: rgba(255, 255, 255, 0.98);
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  }
+}
+
+/* Footer */
+.footer {
+  background-color: var(--bg-elevated);
+  border-top: 1px solid var(--border-subtle);
+  box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.03);
+}
+
+.footer h5,
+.footer h6 {
+  color: #111827;
+}
+
+.footer .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Home Page */
+.home-page {
+  padding-top: 0;
+}
+
+.hero-section {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero-section .badge {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-section .btn-lg {
+  font-size: 1rem;
+}
+
+.category-card {
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 767.98px) {
+  .hero-section {
+    min-height: auto;
+    padding: 3rem 0 2rem;
+  }
+
+  .hero-section .display-3 {
+    font-size: 2.3rem;
+  }
+
+  .hero-section .lead {
+    font-size: 1rem;
+  }
+}
+
+/* Product cards (used across pages, including home sections) */
+.card.h-100.shadow-sm,
+.card.h-100 {
+  transition:
+    transform 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    border-color 0.18s ease-out;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.card.h-100.shadow-sm:hover,
+.card.h-100:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+  border-color: rgba(15, 23, 42, 0.06);
+}
+
+.card-img-top {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
 }
