@@ -25,15 +25,23 @@ function SearchForm({ initialQuery }) {
 
   return (
     <form className="d-flex gap-2" onSubmit={handleSubmit} role="search">
-      <input
-        className="form-control"
-        type="search"
-        placeholder="Search products…"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        aria-label="Search"
-      />
-      <button className="btn btn-outline-dark" type="submit">
+      <div className="position-relative flex-grow-1" style={{ maxWidth: 400 }}>
+        <input
+          className="form-control ps-4"
+          type="search"
+          placeholder="Search products…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label="Search"
+        />
+        <span
+          className="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"
+          style={{ pointerEvents: "none" }}
+        >
+          🔍
+        </span>
+      </div>
+      <button className="btn btn-dark" type="submit" title="Search">
         Search
       </button>
       {q && (
@@ -41,8 +49,9 @@ function SearchForm({ initialQuery }) {
           type="button"
           className="btn btn-outline-secondary"
           onClick={clearSearch}
+          title="Clear search"
         >
-          Clear
+          ✕
         </button>
       )}
     </form>
@@ -80,28 +89,32 @@ export default function Navbar() {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <NavLink to="/products" className="nav-link">
-                Products
+                <span className="me-1">🛍️</span> Products
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/wishlist" className="nav-link">
-                Wishlist
+              <NavLink to="/wishlist" className="nav-link position-relative">
+                <span className="me-1">❤️</span> Wishlist
                 {wishlistCount > 0 && (
-                  <span className="badge bg-danger ms-1">{wishlistCount}</span>
+                  <span className="badge rounded-pill bg-danger ms-1 badge-glow">
+                    {wishlistCount}
+                  </span>
                 )}
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/cart" className="nav-link">
-                Cart
+              <NavLink to="/cart" className="nav-link position-relative">
+                <span className="me-1">🛒</span> Cart
                 {cartCount > 0 && (
-                  <span className="badge bg-primary ms-1">{cartCount}</span>
+                  <span className="badge rounded-pill bg-primary ms-1 badge-glow">
+                    {cartCount}
+                  </span>
                 )}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink to="/profile" className="nav-link">
-                Profile
+                <span className="me-1">👤</span> Profile
               </NavLink>
             </li>
           </ul>

@@ -192,16 +192,152 @@ a:hover {
     border-color 0.18s ease-out;
   border-radius: 1rem;
   overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .card.h-100.shadow-sm:hover,
 .card.h-100:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-soft);
-  border-color: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.1);
 }
 
 .card-img-top {
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
+}
+
+/* Enhanced navbar badges with glow effect */
+.badge-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 10px currentColor;
+  }
+}
+
+/* Footer compact styling */
+.footer {
+  padding: 0;
+}
+
+.footer-link {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: var(--primary-brand);
+}
+
+.footer-link-sm {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.footer-link-sm:hover {
+  color: var(--text-main);
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.social-icon:hover {
+  background-color: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Button enhancements */
+.btn {
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Loading states and animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Improved mobile responsiveness */
+@media (max-width: 575.98px) {
+  .navbar .navbar-brand {
+    font-size: 1.2rem;
+  }
+
+  .navbar .nav-link {
+    padding: 0.6rem 0.5rem;
+  }
+
+  .card.h-100:hover {
+    transform: translateY(-3px);
+  }
+
+  .hero-section .btn-lg {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--primary-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Better form control styling */
+.form-control {
+  border: 1px solid var(--border-subtle);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
 }

@@ -4,128 +4,75 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="footer border-top mt-auto py-3">
+    <footer className="footer border-top mt-auto">
       <div className="container py-4">
-        <div className="row gy-4 text-center text-md-start">
+        <div className="row align-items-center gy-3">
           {/* Brand */}
-          <div className="col-12 col-md-4">
-            <h5 className="fw-bold mb-2 fs-4">FitFinder</h5>
-            <p className="text-muted mb-0">
-              Find your perfect fit. Clean styles. Smarter shopping.
+          <div className="col-12 col-md-4 text-center text-md-start">
+            <h5 className="fw-bold mb-1 fs-5">FitFinder</h5>
+            <p className="text-muted small mb-0">
+              Find your perfect fit. Clean styles.
             </p>
           </div>
 
           {/* Quick Links */}
-          <div className="col-6 col-md-2">
-            <h6 className="text-uppercase text-muted fw-semibold mb-3">Shop</h6>
-            <ul className="list-unstyled mb-0">
-              <li className="mb-2">
-                <Link className="text-decoration-none text-dark" to="/products">
-                  All Products
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link
-                  className="text-decoration-none text-dark"
-                  to="/products?category=cat-men"
-                >
-                  Men
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link
-                  className="text-decoration-none text-dark"
-                  to="/products?category=cat-women"
-                >
-                  Women
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-decoration-none text-dark"
-                  to="/products?category=cat-kids"
-                >
-                  Kids
-                </Link>
-              </li>
-            </ul>
+          <div className="col-12 col-md-4 text-center">
+            <div className="d-flex gap-3 justify-content-center flex-wrap small">
+              <Link className="footer-link" to="/products">
+                Shop
+              </Link>
+              <Link className="footer-link" to="/wishlist">
+                Wishlist
+              </Link>
+              <Link className="footer-link" to="/cart">
+                Cart
+              </Link>
+              <Link className="footer-link" to="/profile">
+                Profile
+              </Link>
+            </div>
           </div>
 
-          {/* Account */}
-          <div className="col-6 col-md-2">
-            <h6 className="text-uppercase text-muted fw-semibold mb-3">
-              Account
-            </h6>
-            <ul className="list-unstyled mb-0">
-              <li className="mb-2">
-                <Link className="text-decoration-none text-dark" to="/profile">
-                  My Profile
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link className="text-decoration-none text-dark" to="/wishlist">
-                  Wishlist
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link className="text-decoration-none text-dark" to="/cart">
-                  Cart
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-decoration-none text-dark"
-                  to="/profile/orders"
-                >
-                  Orders
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal + Social */}
+          {/* Social + Legal */}
           <div className="col-12 col-md-4 text-center text-md-end">
-            <h6 className="text-uppercase text-muted fw-semibold mb-3">
-              Follow Us
-            </h6>
-            <div className="d-flex gap-2 justify-content-center justify-content-md-end mb-3">
+            <div className="d-flex gap-2 justify-content-center justify-content-md-end align-items-center flex-wrap">
               <a
-                className="btn btn-outline-dark btn-sm"
+                className="social-icon"
                 href="#"
                 aria-label="Twitter"
+                title="Twitter"
               >
-                X
+                𝕏
               </a>
               <a
-                className="btn btn-outline-dark btn-sm"
+                className="social-icon"
                 href="#"
                 aria-label="Instagram"
+                title="Instagram"
               >
-                IG
+                📷
               </a>
               <a
-                className="btn btn-outline-dark btn-sm"
+                className="social-icon"
                 href="#"
                 aria-label="LinkedIn"
+                title="LinkedIn"
               >
-                in
+                💼
               </a>
+              <span className="text-muted mx-2">|</span>
+              <Link to="/" className="footer-link-sm">
+                Privacy
+              </Link>
+              <Link to="/" className="footer-link-sm">
+                Terms
+              </Link>
             </div>
-            <Link to="/privacy" className="text-decoration-none text-dark me-3">
-              Privacy
-            </Link>
-            <Link to="/terms" className="text-decoration-none text-dark">
-              Terms
-            </Link>
           </div>
         </div>
 
-        <hr className="my-4" />
-
-        <div className="text-center">
-          <small className="text-muted">
-            © {year} FitFinder. All rights reserved. Built with ❤️.
-          </small>
+        <div className="text-center mt-3 pt-2 border-top">
+          <small className="text-muted">© {year} FitFinder. Made with ❤️</small>
         </div>
       </div>
     </footer>
