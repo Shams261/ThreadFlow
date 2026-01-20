@@ -58,10 +58,10 @@ export default function Navbar() {
   const searchQuery = params.get("search") || "";
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <nav className="navbar navbar-expand-lg sticky-top">
       <div className="container">
-        <Link to="/" className="navbar-brand fw-bold">
-          StyloAI
+        <Link to="/" className="navbar-brand fw-bold fs-4">
+          FitFinder
         </Link>
 
         <button
