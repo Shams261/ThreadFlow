@@ -90,3 +90,10 @@ Desktop.ini
 .history/
 # temporary folders
 tmp/
+
+# IDE & History
+.vscode/
+.idea/
+.history/
+*.swp
+*.swo
