@@ -57,7 +57,7 @@ export default function Wishlist() {
   if (loading) return <Loader label="Loading wishlist..." />;
 
   return (
-    <div>
+    <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="mb-0">Wishlist</h2>
         <span className="badge bg-light text-dark border">

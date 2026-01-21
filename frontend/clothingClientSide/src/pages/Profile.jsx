@@ -114,9 +114,10 @@ export default function Profile() {
   if (loadingOrders) return <Loader label="Loading profile..." />;
 
   return (
-    <div className="row g-3">
-      {/* Left: Profile + Address Management */}
-      <div className="col-12 col-lg-5">
+    <div className="container py-4">
+      <div className="row g-3">
+        {/* Left: Profile + Address Management */}
+        <div className="col-12 col-lg-5">
         <div className="card shadow-sm mb-3">
           <div className="card-body">
             <h4 className="mb-1">Shams Tabrez</h4>

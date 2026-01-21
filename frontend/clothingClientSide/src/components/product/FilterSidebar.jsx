@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export default function FilterSidebar({
   // Why props?
   // Because FilterSidebar ko dumb (presentational) rakhna hai.
@@ -13,8 +15,10 @@ export default function FilterSidebar({
   onChangeSort,
   onClear,
 }) {
-  return (
-    <div className="border rounded p-3 bg-light">
+  const [isOpen, setIsOpen] = useState(false);
+
+  const FilterContent = () => (
+    <>
       <div className="d-flex justify-content-between align-items-center mb-2">
         <h5 className="mb-0">Filters</h5>
         <button
@@ -102,6 +106,33 @@ export default function FilterSidebar({
           Remove Sort
         </button>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Filter Button - visible only on small screens */}
+      <div className="d-lg-none mb-3">
+        <button
+          className="btn btn-outline-dark w-100"
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? "Hide Filters" : "Show Filters"} 🔽
+        </button>
+      </div>
+
+      {/* Desktop Sidebar - always visible on large screens */}
+      <div className="d-none d-lg-block border rounded p-3 bg-light">
+        <FilterContent />
+      </div>
+
+      {/* Mobile Collapsible Panel */}
+      {isOpen && (
+        <div className="d-lg-none border rounded p-3 bg-light mb-3">
+          <FilterContent />
+        </div>
+      )}
+    </>
   );
 }

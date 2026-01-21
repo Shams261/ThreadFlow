@@ -27,41 +27,45 @@ export default function ProductCard({ product }) {
   return (
     <div className="col">
       <div
-        className="card h-100 shadow-sm"
+        className="card h-100 shadow-sm product-card"
         role="button"
         onClick={() => navigate(`/products/${_id}`)}
       >
-        {img ? (
-          <img
-            src={img}
-            className="card-img-top"
-            alt={title}
-            style={{ height: 220, objectFit: "cover" }}
-          />
-        ) : (
-          <div
-            className="d-flex align-items-center justify-content-center bg-light"
-            style={{ height: 220 }}
-          >
-            <span className="text-muted">No image</span>
-          </div>
-        )}
+        <div className="position-relative">
+          {img ? (
+            <img
+              src={img}
+              className="card-img-top"
+              alt={title}
+              style={{ height: 220, objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              className="d-flex align-items-center justify-content-center bg-light"
+              style={{ height: 220 }}
+            >
+              <span className="text-muted">No image</span>
+            </div>
+          )}
+          {discountPercent ? (
+            <span className="badge bg-success position-absolute top-0 start-0 m-2">
+              {discountPercent}% OFF
+            </span>
+          ) : null}
+        </div>
 
-        <div className="card-body">
-          <h6 className="card-title mb-1">{title}</h6>
-          <p className="text-muted mb-2" style={{ fontSize: 14 }}>
-            {brand}
-          </p>
+        <div className="card-body px-2 px-sm-3">
+          <h6 className="card-title mb-1 text-truncate" title={title}>
+            {title}
+          </h6>
+          <p className="text-muted mb-2 small">{brand}</p>
 
-          <div className="d-flex align-items-baseline gap-2">
+          <div className="d-flex align-items-baseline gap-1 gap-sm-2 flex-wrap">
             <span className="fw-bold">₹{price}</span>
             {originalPrice ? (
-              <span className="text-muted text-decoration-line-through">
+              <span className="text-muted text-decoration-line-through small">
                 ₹{originalPrice}
               </span>
-            ) : null}
-            {discountPercent ? (
-              <span className="badge bg-success">{discountPercent}% OFF</span>
             ) : null}
           </div>
 
@@ -70,15 +74,15 @@ export default function ProductCard({ product }) {
               ⭐ {rating} ({ratingCount})
             </small>
             {!inStock ? (
-              <span className="badge bg-danger">Out of stock</span>
+              <span className="badge bg-danger small">Out of stock</span>
             ) : null}
           </div>
         </div>
 
-        <div className="card-footer bg-white border-0 pt-0">
+        <div className="card-footer bg-white border-0 pt-0 px-2 px-sm-3 pb-2 pb-sm-3">
           <div className="d-grid gap-2">
             <button
-              className="btn btn-dark"
+              className="btn btn-dark btn-sm"
               type="button"
               disabled={!inStock}
               onClick={(e) => {
@@ -91,7 +95,7 @@ export default function ProductCard({ product }) {
             </button>
 
             <button
-              className="btn btn-outline-dark"
+              className="btn btn-outline-dark btn-sm"
               type="button"
               onClick={(e) => {
                 e.stopPropagation();

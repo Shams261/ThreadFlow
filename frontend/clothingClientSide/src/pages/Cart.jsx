@@ -92,9 +92,10 @@ export default function Cart() {
   if (loading) return <Loader label="Loading cart..." />;
 
   return (
-    <div className="row g-3">
-      {/* Cart items in the left column */}
-      <div className="col-12 col-lg-8">
+    <div className="container py-4">
+      <div className="row g-3">
+        {/* Cart items in the left column */}
+        <div className="col-12 col-lg-8">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h2 className="mb-0">Cart</h2>
           <span className="badge bg-light text-dark border">

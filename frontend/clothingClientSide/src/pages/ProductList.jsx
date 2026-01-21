@@ -11,6 +11,7 @@ import { useToast } from "../store/toastProvider";
 export default function ProductList() {
   const [searchParams] = useSearchParams(); // to read query params from URL like ?search=shirt
   const search = (searchParams.get("search") || "").trim().toLowerCase();
+  const categoryFromUrl = searchParams.get("category"); // read category from URL
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
@@ -18,7 +19,7 @@ export default function ProductList() {
 
   const [filters, setFilters] = useState({
     // initial filter state
-    categoryIds: new Set(), // Set to store selected category IDs
+    categoryIds: categoryFromUrl ? new Set([categoryFromUrl]) : new Set(), // Set category from URL if exists
     minRating: 0,
     sort: null, // "LOW_TO_HIGH" | "HIGH_TO_LOW" | null
   });
@@ -43,6 +44,16 @@ export default function ProductList() {
       alive = false;
     };
   }, [showToast]);
+
+  // Update filters when URL category parameter changes
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setFilters((prev) => ({
+        ...prev,
+        categoryIds: new Set([categoryFromUrl]),
+      }));
+    }
+  }, [categoryFromUrl]);
 
   useEffect(() => {
     let alive = true;
@@ -111,9 +122,10 @@ export default function ProductList() {
 
   if (loading) return <Loader label="Loading products..." />;
   return (
-    <div className="row g-3">
-      {/* Sidebar */}
-      <aside className="col-12 col-lg-3">
+    <div className="container py-4">
+      <div className="row g-3">
+        {/* Sidebar */}
+        <aside className="col-12 col-lg-3">
         <FilterSidebar
           categories={categories}
           filters={filters}

@@ -58,14 +58,16 @@ export default function ProductDetail() {
 
   if (notFound || !product) {
     return (
-      <div className="alert alert-warning">
-        <h4 className="mb-2">Product not found</h4>
-        <p className="mb-3">
-          The product you’re looking for doesn’t exist or was removed.
-        </p>
-        <button className="btn btn-dark" onClick={() => navigate(-1)}>
-          Go Back
-        </button>
+      <div className="container py-4">
+        <div className="alert alert-warning">
+          <h4 className="mb-2">Product not found</h4>
+          <p className="mb-3">
+            The product you're looking for doesn't exist or was removed.
+          </p>
+          <button className="btn btn-dark" onClick={() => navigate(-1)}>
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }
@@ -91,9 +93,9 @@ export default function ProductDetail() {
   const mainImg = images?.[0];
 
   return (
-    <div>
+    <div className="container py-4">
       {/* Back link */}
-      <div className="mb-3">
+      <div className="mb-4">
         <Link to="/products" className="text-decoration-none">
           ← Back to Products
         </Link>

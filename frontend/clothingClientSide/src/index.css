@@ -52,6 +52,11 @@ a:hover {
 
 /* Navbar */
 .navbar.sticky-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
   background-color: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
@@ -378,6 +383,43 @@ html {
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+/* Product Card Improvements */
+.product-card {
+  overflow: hidden;
+}
+
+.product-card .card-body,
+.product-card .card-footer {
+  overflow: hidden;
+}
+
+.product-card .badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .product-card .card-body {
+    padding: 0.75rem;
+  }
+
+  .product-card .card-footer {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .product-card .btn {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  .product-card .badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
 }
 
 .form-control::placeholder {
