@@ -126,50 +126,51 @@ export default function ProductList() {
       <div className="row g-3">
         {/* Sidebar */}
         <aside className="col-12 col-lg-3">
-        <FilterSidebar
-          categories={categories}
-          filters={filters}
-          onToggleCategory={toggleCategory}
-          onChangeRating={changeRating}
-          onChangeSort={changeSort}
-          onClear={clearFilters}
-        />
-      </aside>
+          <FilterSidebar
+            categories={categories}
+            filters={filters}
+            onToggleCategory={toggleCategory}
+            onChangeRating={changeRating}
+            onChangeSort={changeSort}
+            onClear={clearFilters}
+          />
+        </aside>
 
-      {/* Main */}
-      <section className="col-12 col-lg-9">
-        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
-          <div>
-            <h2 className="mb-1">Products</h2>
-            <p className="text-muted mb-0">
-              {search ? (
-                <>
-                  Showing results for{" "}
-                  <span className="fw-semibold">“{search}”</span>
-                </>
-              ) : (
-                "Browse the latest picks."
-              )}
-            </p>
+        {/* Main */}
+        <section className="col-12 col-lg-9">
+          <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+            <div>
+              <h2 className="mb-1">Products</h2>
+              <p className="text-muted mb-0">
+                {search ? (
+                  <>
+                    Showing results for{" "}
+                    <span className="fw-semibold">“{search}”</span>
+                  </>
+                ) : (
+                  "Browse the latest picks."
+                )}
+              </p>
+            </div>
+
+            <span className="badge bg-light text-dark border">
+              {products.length} items
+            </span>
           </div>
 
-          <span className="badge bg-light text-dark border">
-            {products.length} items
-          </span>
-        </div>
-
-        {products.length === 0 ? (
-          <div className="alert alert-warning">
-            No products found. Try a different search.
-          </div>
-        ) : (
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
-            {products.map((p) => (
-              <ProductCard key={p._id} product={p} />
-            ))}
-          </div>
-        )}
-      </section>
+          {products.length === 0 ? (
+            <div className="alert alert-warning">
+              No products found. Try a different search.
+            </div>
+          ) : (
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+              {products.map((p) => (
+                <ProductCard key={p._id} product={p} />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
