@@ -6,7 +6,7 @@ export default function AppLayout() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
-      <main className="flex-grow-1" style={{ paddingTop: "50px" }}>
+      <main className="flex-grow-1" style={{ paddingTop: "68px" }}>
         <Outlet />
       </main>
       <Footer />
