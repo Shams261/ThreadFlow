@@ -60,7 +60,10 @@ export default function ProductList() {
 
     async function loadProducts() {
       try {
-        setLoading(true);
+        // Only show loader on initial load, not on filter changes
+        if (products.length === 0) {
+          setLoading(true);
+        }
 
         const params = {
           search: search || undefined,

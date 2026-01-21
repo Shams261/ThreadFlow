@@ -25,7 +25,10 @@ export default function Wishlist() {
         return;
       }
 
-      setLoading(true);
+      // Only show loader on initial load
+      if (wishlistProducts.length === 0) {
+        setLoading(true);
+      }
       try {
         // Fetch all products in parallel
         const products = await Promise.all(

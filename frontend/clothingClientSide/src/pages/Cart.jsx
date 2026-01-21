@@ -30,7 +30,10 @@ export default function Cart() {
         return;
       }
 
-      setLoading(true);
+      // Only show loader on initial load
+      if (Object.keys(productsMap).length === 0) {
+        setLoading(true);
+      }
       try {
         // Fetch all products in parallel
         const products = await Promise.all(
