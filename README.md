@@ -1237,7 +1237,6 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 - GitHub: [@Shams261](https://github.com/Shams261)
 - Email: shamsshoaib261@gmail.com
-- LinkedIn: [Your LinkedIn]
 
 ---
 
